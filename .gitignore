@@ -29,3 +29,4 @@ results/
 logs/
 *.tar.gz
 
+actions/scoring_with_norm.py
