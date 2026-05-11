@@ -41,6 +41,7 @@ scoring:
     no_profile_hard_skills: 49
     no_profile_hard_skills_max_ratio: 0.2
     missing_required_project_experience: 49
+    insufficient_education: 49
     salary_over_limit: 74
     salary_over_limit_critical: 49
 
@@ -49,6 +50,7 @@ scoring:
     insufficient_hard_skills: "Недостаточно профильных hard skills"
     insufficient_tools: "Не хватает ключевых инструментов"
     no_project_experience: "Нет проектного опыта"
+    insufficient_education: "Недостаточный уровень образования"
     salary_above_limit: "Зарплатные ожидания выше бюджета роли"
     insufficient_english: "Недостаточный уровень английского"
     no_matching_role: "Нет подходящей роли среди доступных вакансий"
