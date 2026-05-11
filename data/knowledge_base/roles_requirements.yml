@@ -1,0 +1,201 @@
+scoring:
+  max_score: 100
+
+  weights:
+    experience_years: 20
+    hard_skills: 30
+    tools: 20
+    project_experience: 10
+    salary_expectation: 10
+    education_level: 5
+    english_level: 5
+
+  decisions:
+    suitable:
+      label: "подходит"
+      min_score: 75
+      max_score: 100
+      description: "Кандидат хорошо соответствует роли"
+
+    reserve:
+      label: "резерв"
+      min_score: 50
+      max_score: 74
+      description: "Кандидат частично подходит, но есть пробелы"
+
+    not_suitable:
+      label: "не подходит"
+      min_score: 0
+      max_score: 49
+      description: "Кандидат не соответствует минимальным требованиям"
+
+  recommended_role_threshold: 50
+
+  missing_requirements_messages:
+    insufficient_experience: "Недостаточно опыта работы"
+    insufficient_hard_skills: "Недостаточно профильных hard skills"
+    insufficient_tools: "Не хватает ключевых инструментов"
+    no_project_experience: "Нет проектного опыта"
+    salary_above_limit: "Зарплатные ожидания выше бюджета роли"
+    insufficient_english: "Недостаточный уровень английского"
+    no_matching_role: "Нет подходящей роли среди доступных вакансий"
+
+  education_levels_order:
+    - "среднее"
+    - "среднее специальное"
+    - "неоконченное высшее"
+    - "высшее"
+
+  english_levels_order:
+    - "A0"
+    - "A1"
+    - "A2"
+    - "B1"
+    - "B2"
+    - "C1"
+    - "C2"
+
+roles:
+  project_manager:
+    title: "Project Manager"
+    description: "Координирует работу команды и взаимодействие с бизнесом"
+
+    requirements:
+      min_experience_years: 1
+      hard_skills:
+        - "управление проектами"
+        - "коммуникация"
+        - "планирование"
+        - "работа с требованиями"
+        - "управление рисками"
+      tools:
+        - "Jira"
+        - "Trello"
+        - "Confluence"
+        - "Notion"
+        - "Excel"
+      project_experience_required: true
+      project_experience_preferred: true
+      salary_limit: 200000
+      min_education_level: "неоконченное высшее"
+      min_english_level: "A0"
+      work_formats:
+        - "офис"
+        - "гибрид"
+        - "удалёнка"
+
+  data_analyst:
+    title: "Data Analyst"
+    description: "Исследует данные и формулирует бизнес-требования"
+
+    requirements:
+      min_experience_years: 0.5
+      hard_skills:
+        - "SQL"
+        - "анализ данных"
+        - "визуализация"
+        - "продуктовые метрики"
+        - "статистика"
+      tools:
+        - "SQL"
+        - "Excel"
+        - "Power BI"
+        - "Tableau"
+        - "Python"
+        - "pandas"
+      project_experience_required: false
+      project_experience_preferred: true
+      salary_limit: 170000
+      min_education_level: "неоконченное высшее"
+      min_english_level: "B2"
+      work_formats:
+        - "офис"
+        - "гибрид"
+        - "удалёнка"
+
+  data_engineer:
+    title: "Data Engineer"
+    description: "Создаёт пайплайны сбора и обработки данных"
+
+    requirements:
+      min_experience_years: 1
+      hard_skills:
+        - "ETL"
+        - "базы данных"
+        - "пайплайны данных"
+        - "SQL"
+        - "работа с хранилищами данных"
+      tools:
+        - "Python"
+        - "SQL"
+        - "PostgreSQL"
+        - "Airflow"
+        - "Spark"
+        - "Docker"
+      project_experience_required: true
+      project_experience_preferred: true
+      salary_limit: 230000
+      min_education_level: "неоконченное высшее"
+      min_english_level: "A2"
+      work_formats:
+        - "офис"
+        - "гибрид"
+        - "удалёнка"
+
+  data_scientist:
+    title: "Data Scientist"
+    description: "Разрабатывает и улучшает ML-модели"
+
+    requirements:
+      min_experience_years: 1
+      hard_skills:
+        - "машинное обучение"
+        - "статистика"
+        - "Python"
+        - "анализ данных"
+        - "построение моделей"
+      tools:
+        - "Python"
+        - "pandas"
+        - "numpy"
+        - "sklearn"
+        - "matplotlib"
+        - "Jupyter"
+      project_experience_required: true
+      project_experience_preferred: true
+      salary_limit: 230000
+      min_education_level: "неоконченное высшее"
+      min_english_level: "A0"
+      work_formats:
+        - "офис"
+        - "гибрид"
+        - "удалёнка"
+
+  mlops_engineer:
+    title: "MLOps Engineer"
+    description: "Обеспечивает инфраструктуру и производственное окружение моделей"
+
+    requirements:
+      min_experience_years: 1
+      hard_skills:
+        - "деплой моделей"
+        - "CI/CD"
+        - "контейнеризация"
+        - "мониторинг моделей"
+        - "ML lifecycle"
+      tools:
+        - "Docker"
+        - "Git"
+        - "Kubernetes"
+        - "MLflow"
+        - "Linux"
+        - "Python"
+      project_experience_required: true
+      project_experience_preferred: true
+      salary_limit: 250000
+      min_education_level: "неоконченное высшее"
+      min_english_level: "B1"
+      work_formats:
+        - "офис"
+        - "гибрид"
+        - "удалёнка"
