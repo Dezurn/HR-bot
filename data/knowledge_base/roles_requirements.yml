@@ -1,3 +1,7 @@
+blacklist:
+  full_names:
+    - "Иванов Иван Иванович"
+
 scoring:
   max_score: 100
 
@@ -30,6 +34,15 @@ scoring:
       description: "Кандидат не соответствует минимальным требованиям"
 
   recommended_role_threshold: 50
+
+  score_caps:
+    below_min_experience: 74
+    insufficient_hard_skills: 74
+    no_profile_hard_skills: 49
+    no_profile_hard_skills_max_ratio: 0.2
+    missing_required_project_experience: 49
+    salary_over_limit: 74
+    salary_over_limit_critical: 49
 
   missing_requirements_messages:
     insufficient_experience: "Недостаточно опыта работы"
@@ -74,15 +87,11 @@ roles:
         - "Confluence"
         - "Notion"
         - "Excel"
-      project_experience_required: true
+      project_experience_required: True
       project_experience_preferred: true
       salary_limit: 200000
       min_education_level: "неоконченное высшее"
       min_english_level: "A0"
-      work_formats:
-        - "офис"
-        - "гибрид"
-        - "удалёнка"
 
   data_analyst:
     title: "Data Analyst"
@@ -107,11 +116,7 @@ roles:
       project_experience_preferred: true
       salary_limit: 170000
       min_education_level: "неоконченное высшее"
-      min_english_level: "B2"
-      work_formats:
-        - "офис"
-        - "гибрид"
-        - "удалёнка"
+      min_english_level: "A2"
 
   data_engineer:
     title: "Data Engineer"
@@ -137,10 +142,6 @@ roles:
       salary_limit: 230000
       min_education_level: "неоконченное высшее"
       min_english_level: "A2"
-      work_formats:
-        - "офис"
-        - "гибрид"
-        - "удалёнка"
 
   data_scientist:
     title: "Data Scientist"
@@ -165,11 +166,7 @@ roles:
       project_experience_preferred: true
       salary_limit: 230000
       min_education_level: "неоконченное высшее"
-      min_english_level: "A0"
-      work_formats:
-        - "офис"
-        - "гибрид"
-        - "удалёнка"
+      min_english_level: "A2"
 
   mlops_engineer:
     title: "MLOps Engineer"
@@ -194,8 +191,4 @@ roles:
       project_experience_preferred: true
       salary_limit: 250000
       min_education_level: "неоконченное высшее"
-      min_english_level: "B1"
-      work_formats:
-        - "офис"
-        - "гибрид"
-        - "удалёнка"
+      min_english_level: "A2"
