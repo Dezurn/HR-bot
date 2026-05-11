@@ -20,7 +20,7 @@ def calculate_result(slots, requirements_path=DEFAULT_REQUIREMENTS_PATH):
     best_role_key = max(role_scores, key=lambda key: role_scores[key]["score"])
     best_score = role_scores[best_role_key]["score"]
 
-    if best_score >= scoring.get("recommended_role_threshold", 50):
+    if best_score >= scoring.get("recommended_role_threshold"):
         recommended_role_key = best_role_key
         recommended_role = roles[best_role_key]["title"]
     else:
@@ -128,7 +128,7 @@ def score_experience(candidate_experience, required_experience, max_score):
     return max_score * max(candidate_experience, 0) / required_experience
 
 
-def score_list_match(candidate_values, required_values, role_config, synonym_group, max_score):
+def score_list_match(candidate_values, required_values, max_score):
     if candidate_values is None:
         candidate_values = []
 
@@ -285,9 +285,9 @@ def get_missing_requirements(candidate, role_config, scoring, best_score):
     if salary is not None and salary_limit is not None and salary > salary_limit:
         missing.append(messages["salary_above_limit"])
 
-    english_score = score_ordered_level(candidate.get("english_level"),
+    english_score = score_ordered_level(candidate.get("english_level", None),
                                         requirements.get("min_english_level"),
-                                        scoring.get("english_levels_order"),1)
+                                        scoring.get("english_levels_order"))
     if english_score < 1:
         missing.append(messages["insufficient_english"])
 
