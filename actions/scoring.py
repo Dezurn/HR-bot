@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import yaml
+import re
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -314,6 +315,152 @@ def get_match_ratio(candidate_values, required_values):
     return matched_count / len(required_values)
 
 
+SKILL_TERMS = {
+    "Docker": {
+        "technical_terms": [
+            "dockerfile",
+            "docker-compose",
+            "container",
+            "image",
+            "logs",
+            "env",
+            "postgresql",
+        ],
+        "project_context": [
+            "fastapi",
+            "backend",
+            "сервис",
+            "микросервис",
+        ],
+        "problem_solution_result": [
+            "проблема",
+            "проблемы",
+            "ошибка",
+            "решил",
+            "исправил",
+            "настроил",
+            "дебажил",
+        ],
+        "action_verbs": [
+            "писал",
+            "использовал",
+            "запускал",
+            "смотрел",
+            "исправлял",
+            "настраивал",
+        ],
+    }
+}
+
+
+SKILL_SIGNAL_RULES = {
+    "technical_terms": {
+        "points_per_match": 5,
+        "max_score": 30,
+        "missing_message": "технических деталей",
+    },
+    "project_context": {
+        "points_per_match": 5,
+        "max_score": 15,
+        "missing_message": "контекста проекта",
+    },
+    "problem_solution_result": {
+        "points_per_match": 5,
+        "max_score": 20,
+        "missing_message": "описания проблемы, решения или результата",
+    },
+    "action_verbs": {
+        "points_per_match": 5,
+        "max_score": 15,
+        "missing_message": "ясного описания действий кандидата",
+    },
+}
+
+
+def find_matched_terms(text, terms):
+    pattern = "|".join(re.escape(term.lower()) for term in terms)
+    matches = re.findall(pattern, text.lower())
+    return list(set(matches))
+
+
+def count_matches(text, skill_name):
+    result_skills = {}
+    skill_groups = SKILL_TERMS[skill_name]
+    result_skills[skill_name] = {}
+    for group_name, terms in skill_groups.items():
+        matched_terms = find_matched_terms(text, terms)
+        result_skills[skill_name][group_name] = matched_terms
+    return result_skills
+
+
+def score_skill_evidence(answer, skill_name):
+    if skill_name not in SKILL_TERMS:
+        return {
+            "skill": skill_name,
+            "score": 0,
+            "justification": "Для этого навыка пока нет правил оценки.",
+        }
+
+    matched = count_matches(answer, skill_name)
+    skill_matches = matched[skill_name]
+    concreteness_score = score_concreteness(answer)
+    score = calculate_skill_evidence_score(skill_matches, concreteness_score)
+    justification = build_skill_evidence_justification(score, skill_matches, concreteness_score)
+
+    return {
+        "skill": skill_name,
+        "score": score,
+        "justification": justification,
+    }
+
+
+def calculate_skill_evidence_score(skill_matches, concreteness_score):
+    score = concreteness_score
+
+    for signal_name, rule in SKILL_SIGNAL_RULES.items():
+        matched_terms = skill_matches.get(signal_name, [])
+        signal_score = len(matched_terms) * rule["points_per_match"]
+        score += min(signal_score, rule["max_score"])
+
+    return score
+
+
+def score_concreteness(answer):
+    words_count = len(answer.split())
+
+    if words_count < 5:
+        return 0
+    if words_count < 10:
+        return 5
+    if words_count < 20:
+        return 10
+    return 20
+
+
+def build_skill_evidence_justification(score, skill_matches, concreteness_score):
+    missing_parts = []
+
+    if concreteness_score < 10:
+        missing_parts.append("конкретности ответа")
+
+    for signal_name, rule in SKILL_SIGNAL_RULES.items():
+        if not skill_matches.get(signal_name):
+            missing_parts.append(rule["missing_message"])
+
+    if not missing_parts:
+        return "Ответ хорошо подтверждает навык: есть конкретика, детали, контекст, действия и problem/solution."
+
+    if score >= 40:
+        prefix = "Ответ частично подтверждает навык"
+    else:
+        prefix = "Ответ слабо подтверждает навык"
+
+    missing_text = ", ".join(missing_parts[:3])
+    return f"{prefix}: не хватает {missing_text}."
+
+
+
+    
 if __name__ == "__main__":
     #пример можно попробовать разные значения в example_slots для проверки разных кейсов
     example_slots = {
@@ -328,3 +475,8 @@ if __name__ == "__main__":
 
     result = calculate_result(example_slots)
     print(yaml.safe_dump(result, allow_unicode=True, sort_keys=False))
+
+    bad_answer = "Да, использовал Docker в проектах."
+    good_answer = "Я писал Dockerfile для FastAPI-сервиса, использовал docker-compose с PostgreSQL, смотрел docker logs, были проблемы с env variables."
+    print(score_skill_evidence(bad_answer, "Docker"))
+    print(score_skill_evidence(good_answer, "Docker"))

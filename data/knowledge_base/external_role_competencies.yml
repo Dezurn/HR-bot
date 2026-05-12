@@ -1,0 +1,189 @@
+source:
+  name: "O*NET"
+  files:
+    - "/Users/margaritavolgina/Downloads/Skills.xlsx"
+    - "/Users/margaritavolgina/Downloads/Education, Training, and Experience.xlsx"
+    - "/Users/margaritavolgina/Downloads/Interests.xlsx"
+  note: "Используем как дополнительную базу общих компетенций, а не как замену техническим словарям evidence scoring."
+
+competency_translations:
+  Programming: "программирование"
+  Critical Thinking: "критическое мышление"
+  Complex Problem Solving: "решение сложных проблем"
+  Systems Analysis: "системный анализ"
+  Systems Evaluation: "оценка систем"
+  Judgment and Decision Making: "принятие решений"
+  Active Learning: "активное обучение"
+  Active Listening: "активное слушание"
+  Reading Comprehension: "понимание технических текстов"
+  Writing: "письменная коммуникация"
+  Speaking: "устная коммуникация"
+  Mathematics: "математика"
+  Operations Analysis: "операционный анализ"
+  Monitoring: "мониторинг"
+  Technology Design: "проектирование технологий"
+  Coordination: "координация"
+  Management of Personnel Resources: "управление командой"
+
+roles:
+  project_manager:
+    onet_titles:
+      - "Computer and Information Systems Managers"
+    external_competencies:
+      - name_ru: "критическое мышление"
+        name_en: "Critical Thinking"
+        importance: 4.12
+      - name_ru: "активное слушание"
+        name_en: "Active Listening"
+        importance: 4.00
+      - name_ru: "устная коммуникация"
+        name_en: "Speaking"
+        importance: 3.88
+      - name_ru: "принятие решений"
+        name_en: "Judgment and Decision Making"
+        importance: 3.88
+      - name_ru: "мониторинг"
+        name_en: "Monitoring"
+        importance: 3.88
+      - name_ru: "координация"
+        name_en: "Coordination"
+        importance: 3.75
+      - name_ru: "решение сложных проблем"
+        name_en: "Complex Problem Solving"
+        importance: 3.75
+      - name_ru: "системный анализ"
+        name_en: "Systems Analysis"
+        importance: 3.62
+    interview_question_hints:
+      - "Расскажите о ситуации, где вам пришлось координировать работу нескольких участников."
+      - "Приведите пример сложного решения по проекту: какие варианты были и почему выбрали итоговый?"
+
+  data_analyst:
+    onet_titles:
+      - "Operations Research Analysts"
+    external_competencies:
+      - name_ru: "математика"
+        name_en: "Mathematics"
+        importance: 4.50
+      - name_ru: "решение сложных проблем"
+        name_en: "Complex Problem Solving"
+        importance: 4.12
+      - name_ru: "критическое мышление"
+        name_en: "Critical Thinking"
+        importance: 4.00
+      - name_ru: "письменная коммуникация"
+        name_en: "Writing"
+        importance: 4.00
+      - name_ru: "системный анализ"
+        name_en: "Systems Analysis"
+        importance: 3.88
+      - name_ru: "оценка систем"
+        name_en: "Systems Evaluation"
+        importance: 3.88
+      - name_ru: "принятие решений"
+        name_en: "Judgment and Decision Making"
+        importance: 3.88
+      - name_ru: "операционный анализ"
+        name_en: "Operations Analysis"
+        importance: 3.75
+    interview_question_hints:
+      - "Расскажите, как вы проверяли гипотезу на данных."
+      - "Приведите пример, где вывод из анализа повлиял на решение команды."
+
+  data_engineer:
+    onet_titles:
+      - "Data Warehousing Specialists"
+      - "Database Architects"
+    external_competencies:
+      - name_ru: "программирование"
+        name_en: "Programming"
+        importance: 3.75
+      - name_ru: "критическое мышление"
+        name_en: "Critical Thinking"
+        importance: 3.88
+      - name_ru: "решение сложных проблем"
+        name_en: "Complex Problem Solving"
+        importance: 3.88
+      - name_ru: "системный анализ"
+        name_en: "Systems Analysis"
+        importance: 3.75
+      - name_ru: "оценка систем"
+        name_en: "Systems Evaluation"
+        importance: 3.25
+      - name_ru: "принятие решений"
+        name_en: "Judgment and Decision Making"
+        importance: 3.88
+      - name_ru: "операционный анализ"
+        name_en: "Operations Analysis"
+        importance: 3.12
+      - name_ru: "мониторинг"
+        name_en: "Monitoring"
+        importance: 3.12
+    interview_question_hints:
+      - "Расскажите о pipeline или хранилище данных, которое вы проектировали или поддерживали."
+      - "Приведите пример проблемы с данными или инфраструктурой: как вы её нашли и исправили?"
+
+  data_scientist:
+    onet_titles:
+      - "Computer and Information Research Scientists"
+    external_competencies:
+      - name_ru: "решение сложных проблем"
+        name_en: "Complex Problem Solving"
+        importance: 4.00
+      - name_ru: "критическое мышление"
+        name_en: "Critical Thinking"
+        importance: 4.00
+      - name_ru: "принятие решений"
+        name_en: "Judgment and Decision Making"
+        importance: 4.00
+      - name_ru: "системный анализ"
+        name_en: "Systems Analysis"
+        importance: 3.75
+      - name_ru: "оценка систем"
+        name_en: "Systems Evaluation"
+        importance: 3.62
+      - name_ru: "программирование"
+        name_en: "Programming"
+        importance: 3.62
+      - name_ru: "математика"
+        name_en: "Mathematics"
+        importance: 3.38
+      - name_ru: "активное обучение"
+        name_en: "Active Learning"
+        importance: 3.50
+    interview_question_hints:
+      - "Расскажите о ML-задаче, где нужно было выбрать подход и метрику."
+      - "Приведите пример, когда модель работала хуже ожидаемого: как вы это диагностировали?"
+
+  mlops_engineer:
+    onet_titles:
+      - "Software Developers"
+      - "Computer Systems Engineers/Architects"
+    external_competencies:
+      - name_ru: "программирование"
+        name_en: "Programming"
+        importance: 4.00
+      - name_ru: "критическое мышление"
+        name_en: "Critical Thinking"
+        importance: 4.00
+      - name_ru: "системный анализ"
+        name_en: "Systems Analysis"
+        importance: 3.88
+      - name_ru: "оценка систем"
+        name_en: "Systems Evaluation"
+        importance: 3.88
+      - name_ru: "решение сложных проблем"
+        name_en: "Complex Problem Solving"
+        importance: 3.75
+      - name_ru: "операционный анализ"
+        name_en: "Operations Analysis"
+        importance: 3.75
+      - name_ru: "проектирование технологий"
+        name_en: "Technology Design"
+        importance: 3.38
+      - name_ru: "мониторинг"
+        name_en: "Monitoring"
+        importance: 3.50
+    interview_question_hints:
+      - "Расскажите, как вы разворачивали или поддерживали сервис/модель в окружении."
+      - "Приведите пример мониторинга, алерта или production-проблемы: что произошло и как вы реагировали?"

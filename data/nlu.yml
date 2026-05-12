@@ -89,3 +89,29 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
+
+- intent: provide_profile_info
+  examples: |
+    - Я откликаюсь на Data Engineer
+    - Хочу на позицию Data Scientist
+    - Интересует роль MLOps Engineer
+    - Хочу работать Project Manager
+    - У меня [2](experience_years) года опыта
+    - Опыт [1.5](experience_years) года
+    - Я работаю в этой сфере [3](experience_years) года
+    - У меня около [1](experience_years) года проектного опыта
+    - Я знаю [Docker](skill), [SQL](skill) и [Python](skill)
+    - Мои навыки: [Docker](skill), [Airflow](skill), [PostgreSQL](skill)
+    - Работал с [Python](skill), [pandas](skill) и [SQL](skill)
+    - Умею работать с [Jira](skill), [Confluence](skill) и [Excel](skill)
+
+- intent: provide_skill_evidence
+  examples: |
+    - Я писал Dockerfile для FastAPI-сервиса
+    - Использовал docker-compose с PostgreSQL
+    - Смотрел docker logs и исправлял проблемы с env variables
+    - Настраивал контейнеры для backend-сервиса
+    - Я запускал сервисы в Docker и проверял логи
+    - Делал docker-compose файл для локальной разработки
+    - Использовал Docker в учебном проекте
+    - Настраивал окружение через env variables

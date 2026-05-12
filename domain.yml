@@ -8,10 +8,79 @@ intents:
   - mood_great
   - mood_unhappy
   - bot_challenge
+  - provide_profile_info
+  - provide_skill_evidence
+
+entities:
+  - experience_years
+  - skill
+
+slots:
+  target_role:
+    type: text
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: candidate_profile_form
+            requested_slot: target_role
+
+  experience_years:
+    type: float
+    mappings:
+      - type: from_entity
+        entity: experience_years
+        conditions:
+          - active_loop: candidate_profile_form
+            requested_slot: experience_years
+
+  hard_skills:
+    type: list
+    mappings:
+      - type: from_entity
+        entity: skill
+        conditions:
+          - active_loop: candidate_profile_form
+            requested_slot: hard_skills
+
+  current_skill:
+    type: text
+    mappings:
+      - type: custom
+
+  skill_evidence_answer:
+    type: text
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: skill_evidence_form
+            requested_slot: skill_evidence_answer
+
+forms:
+  candidate_profile_form:
+    required_slots:
+      - target_role
+      - experience_years
+      - hard_skills
+
+  skill_evidence_form:
+    required_slots:
+      - skill_evidence_answer
 
 responses:
   utter_greet:
-  - text: "Hey! How are you?"
+  - text: "Здравствуйте! Я помогу провести короткое первичное интервью."
+
+  utter_ask_target_role:
+  - text: "На какую роль вы откликаетесь?"
+
+  utter_ask_experience_years:
+  - text: "Сколько лет коммерческого или проектного опыта у вас есть?"
+
+  utter_ask_hard_skills:
+  - text: "Какие ключевые hard skills вы хотите указать?"
+
+  utter_ask_skill_evidence_answer:
+  - text: "Расскажите, как вы использовали этот навык в реальном проекте."
 
   utter_cheer_up:
   - text: "Here is something to cheer you up:"
@@ -28,6 +97,10 @@ responses:
 
   utter_iamabot:
   - text: "I am a bot, powered by Rasa."
+
+actions:
+  - action_choose_followup_skill
+  - action_score_skill_evidence
 
 session_config:
   session_expiration_time: 60

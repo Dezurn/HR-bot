@@ -11,3 +11,28 @@ rules:
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
+
+- rule: Start candidate profile form
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - action: candidate_profile_form
+  - active_loop: candidate_profile_form
+
+- rule: Submit candidate profile form
+  condition:
+  - active_loop: candidate_profile_form
+  steps:
+  - action: candidate_profile_form
+  - active_loop: null
+  - action: action_choose_followup_skill
+  - action: skill_evidence_form
+  - active_loop: skill_evidence_form
+
+- rule: Submit skill evidence form
+  condition:
+  - active_loop: skill_evidence_form
+  steps:
+  - action: skill_evidence_form
+  - active_loop: null
+  - action: action_score_skill_evidence
