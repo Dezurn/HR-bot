@@ -61,14 +61,10 @@ def score_candidate_for_role(candidate, role_key, role_config, scoring):
 
     hard_score, matched_hard, missing_hard = score_list_match(candidate.get("hard_skills", []),
                                                               requirements["hard_skills"],
-                                                              role_config,
-                                                              "hard_skills",
                                                               weights["hard_skills"])
 
     tools_score, matched_tools, missing_tools = score_list_match(candidate.get("tools", []),
                                                                  requirements["tools"],
-                                                                 role_config,
-                                                                 "tools",
                                                                  weights["tools"])
 
     project_score = score_project_experience(candidate.get("project_experience"),
@@ -287,7 +283,7 @@ def get_missing_requirements(candidate, role_config, scoring, best_score):
 
     english_score = score_ordered_level(candidate.get("english_level", None),
                                         requirements.get("min_english_level"),
-                                        scoring.get("english_levels_order"))
+                                        scoring.get("english_levels_order"), 1)
     if english_score < 1:
         missing.append(messages["insufficient_english"])
 
