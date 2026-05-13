@@ -1,7 +1,3 @@
-blacklist:
-  full_names:
-    - "Иванов Иван Иванович"
-
 scoring:
   max_score: 100
 
