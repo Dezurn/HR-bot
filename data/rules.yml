@@ -2,37 +2,48 @@ version: "3.1"
 
 rules:
 
-- rule: Say goodbye anytime the user says goodbye
-  steps:
-  - intent: goodbye
-  - action: utter_goodbye
+  - rule: Say goodbye anytime the user says goodbye
+    steps:
+      - intent: goodbye
+      - action: utter_goodbye
 
-- rule: Say 'I am a bot' anytime the user challenges
-  steps:
-  - intent: bot_challenge
-  - action: utter_iamabot
+  - rule: Say 'I am a bot' anytime the user challenges
+    steps:
+      - intent: bot_challenge
+      - action: utter_iamabot
 
-- rule: Start candidate profile form
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - action: candidate_profile_form
-  - active_loop: candidate_profile_form
+  - rule: Stop interview before form
+    steps:
+      - intent: stop
+      - action: utter_stop
 
-- rule: Submit candidate profile form
-  condition:
-  - active_loop: candidate_profile_form
-  steps:
-  - action: candidate_profile_form
-  - active_loop: null
-  - action: action_choose_followup_skill
-  - action: skill_evidence_form
-  - active_loop: skill_evidence_form
+  - rule: Start candidate form from greeting
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - action: candidate_form
+      - active_loop: candidate_form
 
-- rule: Submit skill evidence form
-  condition:
-  - active_loop: skill_evidence_form
-  steps:
-  - action: skill_evidence_form
-  - active_loop: null
-  - action: action_score_skill_evidence
+  - rule: Start candidate form from screening
+    steps:
+      - intent: start_screening
+      - action: utter_greet
+      - action: candidate_form
+      - active_loop: candidate_form
+
+  - rule: Submit candidate form
+    condition:
+      - active_loop: candidate_form
+    steps:
+      - action: candidate_form
+      - active_loop: null
+      - action: action_submit_candidate_data
+
+  - rule: Stop candidate form
+    condition:
+      - active_loop: candidate_form
+    steps:
+      - intent: stop
+      - action: action_deactivate_loop
+      - active_loop: null
+      - action: utter_stop

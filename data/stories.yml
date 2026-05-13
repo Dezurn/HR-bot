@@ -1,30 +1,51 @@
 version: "3.1"
 
 stories:
+  - story: happy path from greeting
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - action: candidate_form
+      - active_loop: candidate_form
+      - active_loop: null
+      - action: action_submit_candidate_data
 
-- story: happy path
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_great
-  - action: utter_happy
+  - story: happy path from direct screening request
+    steps:
+      - intent: start_screening
+      - action: utter_greet
+      - action: candidate_form
+      - active_loop: candidate_form
+      - active_loop: null
+      - action: action_submit_candidate_data
 
-- story: sad path 1
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: affirm
-  - action: utter_happy
+  - story: user asks who the bot is then starts screening
+    steps:
+      - intent: bot_challenge
+      - action: utter_iamabot
+      - intent: start_screening
+      - action: utter_greet
+      - action: candidate_form
+      - active_loop: candidate_form
+      - active_loop: null
+      - action: action_submit_candidate_data
 
-- story: sad path 2
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: deny
-  - action: utter_goodbye
+  - story: user greets then starts screening
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: start_screening
+      - action: candidate_form
+      - active_loop: candidate_form
+      - active_loop: null
+      - action: action_submit_candidate_data
+
+  - story: user say goodbye
+    steps:
+      - intent: goodbye
+      - action: utter_goodbye
+
+  - story: user want to atop
+    steps:
+      - intent: stop
+      - action: utter_stop
