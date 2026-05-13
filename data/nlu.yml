@@ -3,115 +3,265 @@ version: "3.1"
 nlu:
 - intent: greet
   examples: |
-    - hey
-    - hello
-    - hi
-    - hello there
-    - good morning
-    - good evening
-    - moin
-    - hey there
-    - let's go
-    - hey dude
-    - goodmorning
-    - goodevening
-    - good afternoon
+    - привет
+    - здравствуйте
+    - добрый день
+    - доброе утро
+    - добрый вечер
+    - привет, я кандидат
+    - здравствуйте, можно начать
+    - привет, на связи
+    - день добрый
+    - приветствую
+    - салют
+    - хай
 
 - intent: goodbye
   examples: |
-    - cu
-    - good by
-    - cee you later
-    - good night
-    - bye
-    - goodbye
-    - have a nice day
-    - see you around
-    - bye bye
-    - see you later
+    - пока
+    - до свидания
+    - всего доброго
+    - благодарю, до свидания
+    - спасибо, пока
+    - на этом все
+    - до связи
+    - хорошего дня
+    - завершим
+    - до встречи
+
+- intent: start_screening
+  examples: |
+    - хочу пройти скрининг
+    - давайте начнем интервью
+    - можно начать собеседование
+    - готов пройти первичное интервью
+    - запускай скрининг
+    - начнем
+    - поехали
+    - хочу откликнуться на вакансию
+    - можно стартовать
+    - я готов отвечать на вопросы
+
+- intent: inform
+  examples: |
+    - Я откликаюсь на [Data Scientist]({"entity": "role", "value": "data_scientist"})
+    - Хочу на позицию [Data Engineer]({"entity": "role", "value": "data_engineer"})
+    - Рассматриваю роль [Data Analyst]({"entity": "role", "value": "data_analyst"})
+    - Подаюсь на [Project Manager]({"entity": "role", "value": "project_manager"})
+    - Интересует вакансия [MLOps Engineer]({"entity": "role", "value": "mlops_engineer"})
+    - Целевая роль [дата сайентист]({"entity": "role", "value": "data_scientist"})
+    - Хочу работать как [инженер данных]({"entity": "role", "value": "data_engineer"})
+    - Позиция [аналитик данных]({"entity": "role", "value": "data_analyst"})
+    - Я [проектный менеджер]({"entity": "role", "value": "project_manager"})
+    - Нацелен на [mlops]({"entity": "role", "value": "mlops_engineer"})
+    - У меня [0](number) лет опыта
+    - У меня [1](number) год опыта
+    - Опыт [2](number) года
+    - В профессии уже [3](number) года
+    - Работаю в этой области [4](number) года
+    - Коммерческий опыт [5](number) лет
+    - Опыт [0.5](number) года
+    - Опыт [1.5](number) года
+    - Опыт примерно [2.5](number) года
+    - Мой опыт [6](number) лет
+    - Зарплатные ожидания [120000](number)
+    - Ожидаю [150000](number) рублей
+    - Комфортная зарплата [180000](number)
+    - Рассчитываю на [200000](number)
+    - Нижняя граница [170000](number)
+    - Хотелось бы [230000](number)
+    - Образование [среднее](education_level)
+    - Образование [среднее специальное](education_level)
+    - Уровень образования [неоконченное высшее](education_level)
+    - У меня [высшее](education_level)
+    - Закончил [бакалавриат]({"entity": "education_level", "value": "высшее"})
+    - Закончил [магистратуру]({"entity": "education_level", "value": "высшее"})
+    - Английский [A0](english_level)
+    - Уровень английского [A1](english_level)
+    - Мой английский [A2](english_level)
+    - Английский [B1](english_level)
+    - Английский язык [B2](english_level)
+    - Уровень [C1](english_level)
+    - Свободный английский [C2](english_level)
+    - Предпочитаю [офис](work_format)
+    - Хочу [удаленка]({"entity": "work_format", "value": "удалёнка"})
+    - Подходит [удаленно]({"entity": "work_format", "value": "удалёнка"})
+    - Нужен [гибрид](work_format)
+    - Для меня оптимально [гибридный]({"entity": "work_format", "value": "гибрид"}) формат
+    - Могу выходить в [офисный]({"entity": "work_format", "value": "офис"}) формат
+    - Мои hard skills: Python, SQL, статистика, машинное обучение
+    - Основные навыки: ETL, базы данных, пайплайны данных
+    - По hard skills: управление проектами, коммуникация, планирование
+    - Инструменты: Python, pandas, numpy, sklearn, Jupyter
+    - Работал с Docker, Airflow, PostgreSQL, Spark
+    - Использовал Jira, Confluence, Notion, Excel
+    - По инструментам: Power BI, Tableau, SQL, Python
+    - Есть опыт в проектах
+    - Участвовал в учебных проектах
+    - Есть коммерческий проектный опыт
+    - Готов выйти сразу
+    - Смогу начать через [2](number) недели
+    - Готов приступить через [1](number) месяц
+    - Позиция [Data Scientist]({"entity": "role", "value": "data_scientist"}), опыт [2](number) года, английский [B2](english_level)
+    - Роль [Data Engineer]({"entity": "role", "value": "data_engineer"}), зарплата [220000](number), формат [гибрид](work_format)
+    - Хочу на [Data Analyst]({"entity": "role", "value": "data_analyst"}), опыт [1](number) год, образование [высшее](education_level)
 
 - intent: affirm
   examples: |
-    - yes
-    - y
-    - indeed
-    - of course
-    - that sounds good
-    - correct
+    - да
+    - ага
+    - конечно
+    - верно
+    - подтверждаю
+    - все так
+    - именно
+    - да, есть
+    - есть
+    - согласен
+    - давайте
+    - да, готов
 
 - intent: deny
   examples: |
-    - no
-    - n
-    - never
-    - I don't think so
-    - don't like that
-    - no way
-    - not really
+    - нет
+    - неа
+    - неверно
+    - не думаю
+    - не совсем
+    - нет, это не так
+    - нет, опыта нет
+    - пока нет
+    - не готов
+    - не согласен
+    - не хочу
 
-- intent: mood_great
+- intent: stop
   examples: |
-    - perfect
-    - great
-    - amazing
-    - feeling like a king
-    - wonderful
-    - I am feeling very good
-    - I am great
-    - I am amazing
-    - I am going to save the world
-    - super stoked
-    - extremely good
-    - so so perfect
-    - so good
-    - so perfect
-
-- intent: mood_unhappy
-  examples: |
-    - my day was horrible
-    - I am sad
-    - I don't feel very well
-    - I am disappointed
-    - super sad
-    - I'm so sad
-    - sad
-    - very sad
-    - unhappy
-    - not good
-    - not very good
-    - extremly sad
-    - so saad
-    - so sad
+    - стоп
+    - остановить интервью
+    - давайте остановимся
+    - хочу прервать
+    - завершить сейчас
+    - пока остановим
+    - отмена
+    - прекратить
+    - закончим
+    - продолжим позже
 
 - intent: bot_challenge
   examples: |
-    - are you a bot?
-    - are you a human?
-    - am I talking to a bot?
-    - am I talking to a human?
+    - ты бот?
+    - вы бот?
+    - это бот?
+    - я с ботом говорю?
+    - это человек или бот?
+    - ты человек?
+    - вы человек?
+    - это живой рекрутер?
 
-- intent: provide_profile_info
+- synonym: data_scientist
   examples: |
-    - Я откликаюсь на Data Engineer
-    - Хочу на позицию Data Scientist
-    - Интересует роль MLOps Engineer
-    - Хочу работать Project Manager
-    - У меня [2](experience_years) года опыта
-    - Опыт [1.5](experience_years) года
-    - Я работаю в этой сфере [3](experience_years) года
-    - У меня около [1](experience_years) года проектного опыта
-    - Я знаю [Docker](skill), [SQL](skill) и [Python](skill)
-    - Мои навыки: [Docker](skill), [Airflow](skill), [PostgreSQL](skill)
-    - Работал с [Python](skill), [pandas](skill) и [SQL](skill)
-    - Умею работать с [Jira](skill), [Confluence](skill) и [Excel](skill)
+    - data scientist
+    - дата сайентист
+    - дата саентист
 
-- intent: provide_skill_evidence
+- synonym: data_engineer
   examples: |
-    - Я писал Dockerfile для FastAPI-сервиса
-    - Использовал docker-compose с PostgreSQL
-    - Смотрел docker logs и исправлял проблемы с env variables
-    - Настраивал контейнеры для backend-сервиса
-    - Я запускал сервисы в Docker и проверял логи
-    - Делал docker-compose файл для локальной разработки
-    - Использовал Docker в учебном проекте
-    - Настраивал окружение через env variables
+    - data engineer
+    - дата инженер
+    - инженер данных
+
+- synonym: data_analyst
+  examples: |
+    - data analyst
+    - аналитик данных
+
+- synonym: project_manager
+  examples: |
+    - project manager
+    - проджект менеджер
+    - проектный менеджер
+    - менеджер проектов
+    - pm
+
+- synonym: mlops_engineer
+  examples: |
+    - mlops engineer
+    - mlops
+    - ml ops engineer
+    - инженер mlops
+
+- synonym: удалёнка
+  examples: |
+    - удаленка
+    - удаленно
+    - удалённо
+    - remote
+
+- synonym: гибрид
+  examples: |
+    - гибридный
+    - hybrid
+
+- synonym: офис
+  examples: |
+    - офисный
+    - работа в офисе
+
+- synonym: высшее
+  examples: |
+    - бакалавриат
+    - магистратура
+    - магистр
+    - бакалавр
+
+- lookup: role
+  examples: |
+    - Data Scientist
+    - Data Engineer
+    - Data Analyst
+    - Project Manager
+    - MLOps Engineer
+    - дата сайентист
+    - дата саентист
+    - инженер данных
+    - аналитик данных
+    - проектный менеджер
+    - mlops
+
+- lookup: education_level
+  examples: |
+    - среднее
+    - среднее специальное
+    - неоконченное высшее
+    - высшее
+    - бакалавриат
+    - магистратура
+
+- lookup: english_level
+  examples: |
+    - A0
+    - A1
+    - A2
+    - B1
+    - B2
+    - C1
+    - C2
+
+- lookup: work_format
+  examples: |
+    - офис
+    - удалёнка
+    - удаленка
+    - удаленно
+    - удалённо
+    - гибрид
+    - гибридный
+
+- regex: number
+  examples: |
+    - \b\d{1,3}(?:[ \u00A0]?\d{3})*(?:[\.,]\d+)?\b
+
+- regex: english_level
+  examples: |
+    - \b(?:A0|A1|A2|B1|B2|C1|C2)\b
