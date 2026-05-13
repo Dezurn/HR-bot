@@ -106,7 +106,7 @@ def build_blacklist_result(matched_fields, item):
             "reason": None,
         }
 
-    is_blacklisted = len(matched_fields) == 3
+    is_blacklisted = "email" in matched_fields or len(matched_fields) == 3
 
     return {
         "is_blacklisted": is_blacklisted,
