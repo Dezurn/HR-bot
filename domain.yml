@@ -18,6 +18,33 @@ entities:
   - work_format
 
 slots:
+  full_name:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: full_name
+
+  email:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: email
+
+  phone:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: phone
+
   target_role:
     type: text
     influence_conversation: false
@@ -135,6 +162,9 @@ slots:
 forms:
   candidate_form:
     required_slots:
+      - full_name
+      - email
+      - phone
       - target_role
       - experience_years
       - hard_skills
@@ -161,6 +191,15 @@ responses:
 
   utter_ask_target_role:
     - text: "На какую роль вы претендуете? Доступные вакансии: Project Manager, Data Analyst, Data Engineer, Data Scientist, MLOps Engineer."
+
+  utter_ask_full_name:
+    - text: "Укажите ваше ФИО."
+
+  utter_ask_email:
+    - text: "Укажите вашу электронную почту."
+
+  utter_ask_phone:
+    - text: "Укажите ваш номер телефона."
 
   utter_ask_experience_years:
     - text: "Сколько лет опыта у вас есть в этой области? Можно указать число, например: 0, 0.5, 1, 2, 3."
@@ -192,7 +231,7 @@ responses:
     - text: "Спасибо! Я собрал всю необходимую информацию. Передаю данные на следующий этап."
 
 actions:
-  - action_submit_candidate_data
+  - action_calculate_screening_result
 
 session_config:
   session_expiration_time: 60

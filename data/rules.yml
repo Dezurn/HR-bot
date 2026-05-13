@@ -37,7 +37,7 @@ rules:
     steps:
       - action: candidate_form
       - active_loop: null
-      - action: action_submit_candidate_data
+      - action: action_calculate_screening_result
 
   - rule: Stop candidate form
     condition:

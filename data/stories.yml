@@ -8,7 +8,7 @@ stories:
       - action: candidate_form
       - active_loop: candidate_form
       - active_loop: null
-      - action: action_submit_candidate_data
+      - action: action_calculate_screening_result
 
   - story: happy path from direct screening request
     steps:
@@ -17,7 +17,7 @@ stories:
       - action: candidate_form
       - active_loop: candidate_form
       - active_loop: null
-      - action: action_submit_candidate_data
+      - action: action_calculate_screening_result
 
   - story: user asks who the bot is then starts screening
     steps:
@@ -28,17 +28,7 @@ stories:
       - action: candidate_form
       - active_loop: candidate_form
       - active_loop: null
-      - action: action_submit_candidate_data
-
-  - story: user greets then starts screening
-    steps:
-      - intent: greet
-      - action: utter_greet
-      - intent: start_screening
-      - action: candidate_form
-      - active_loop: candidate_form
-      - active_loop: null
-      - action: action_submit_candidate_data
+      - action: action_calculate_screening_result
 
   - story: user say goodbye
     steps:
