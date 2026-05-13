@@ -3,7 +3,6 @@ from pathlib import Path
 import yaml
 import re
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_REQUIREMENTS_PATH = PROJECT_ROOT / "data/knowledge_base/roles_requirements.yml"
 
@@ -16,7 +15,9 @@ def calculate_result(slots, requirements_path=DEFAULT_REQUIREMENTS_PATH):
 
     role_scores = {}
     for role_key, role_config in roles.items():
-        role_scores[role_key] = score_candidate_for_role(candidate, role_key, role_config, scoring)
+        role_scores[role_key] = score_candidate_for_role(
+            candidate, role_key, role_config, scoring
+        )
 
     best_role_key = max(role_scores, key=lambda key: role_scores[key]["score"])
     best_score = role_scores[best_role_key]["score"]
@@ -29,6 +30,9 @@ def calculate_result(slots, requirements_path=DEFAULT_REQUIREMENTS_PATH):
         recommended_role = "не определена"
 
     target_role_key = candidate.get("target_role")
+    if target_role_key not in roles:
+        target_role_key = None
+
     missing_role_key = target_role_key or best_role_key
 
     return {
@@ -38,11 +42,10 @@ def calculate_result(slots, requirements_path=DEFAULT_REQUIREMENTS_PATH):
         "recommended_role_key": recommended_role_key,
         "screening_score": best_score,
         "decision": get_decision_label(best_score),
-        "missing_requirements": get_missing_requirements(candidate,
-                                                         roles[missing_role_key],
-                                                         scoring,
-                                                         best_score),
-        "role_scores": role_scores
+        "missing_requirements": get_missing_requirements(
+            candidate, roles[missing_role_key], scoring, best_score
+        ),
+        "role_scores": role_scores,
     }
 
 
@@ -56,36 +59,48 @@ def score_candidate_for_role(candidate, role_key, role_config, scoring):
     weights = scoring["weights"]
     requirements = role_config["requirements"]
 
-    experience_score = score_experience(candidate.get("experience_years"),
-                                        requirements.get("min_experience_years"),
-                                        weights["experience_years"])
+    experience_score = score_experience(
+        candidate.get("experience_years"),
+        requirements.get("min_experience_years"),
+        weights["experience_years"],
+    )
 
-    hard_score, matched_hard, missing_hard = score_list_match(candidate.get("hard_skills", []),
-                                                              requirements["hard_skills"],
-                                                              weights["hard_skills"])
+    hard_score, matched_hard, missing_hard = score_list_match(
+        candidate.get("hard_skills", []),
+        requirements["hard_skills"],
+        weights["hard_skills"],
+    )
 
-    tools_score, matched_tools, missing_tools = score_list_match(candidate.get("tools", []),
-                                                                 requirements["tools"],
-                                                                 weights["tools"])
+    tools_score, matched_tools, missing_tools = score_list_match(
+        candidate.get("tools", []), requirements["tools"], weights["tools"]
+    )
 
-    project_score = score_project_experience(candidate.get("project_experience"),
-                                             requirements.get("project_experience_required", False),
-                                             requirements.get("project_experience_preferred", False),
-                                             weights["project_experience"])
+    project_score = score_project_experience(
+        candidate.get("project_experience"),
+        requirements.get("project_experience_required", False),
+        requirements.get("project_experience_preferred", False),
+        weights["project_experience"],
+    )
 
-    salary_score = score_salary(candidate.get("salary_expectation"),
-                                requirements.get("salary_limit"),
-                                weights["salary_expectation"])
+    salary_score = score_salary(
+        candidate.get("salary_expectation"),
+        requirements.get("salary_limit"),
+        weights["salary_expectation"],
+    )
 
-    education_score = score_ordered_level(candidate.get("education_level"),
-                                          requirements.get("min_education_level"),
-                                          scoring.get("education_levels_order"),
-                                          weights["education_level"])
+    education_score = score_ordered_level(
+        candidate.get("education_level"),
+        requirements.get("min_education_level"),
+        scoring.get("education_levels_order"),
+        weights["education_level"],
+    )
 
-    english_score = score_ordered_level(candidate.get("english_level"),
-                                        requirements.get("min_english_level"),
-                                        scoring.get("english_levels_order"),
-                                        weights["english_level"])
+    english_score = score_ordered_level(
+        candidate.get("english_level"),
+        requirements.get("min_english_level"),
+        scoring.get("english_levels_order"),
+        weights["english_level"],
+    )
 
     breakdown = {
         "experience_years": round(experience_score, 2),
@@ -94,7 +109,7 @@ def score_candidate_for_role(candidate, role_key, role_config, scoring):
         "project_experience": round(project_score, 2),
         "salary_expectation": round(salary_score, 2),
         "education_level": round(education_score, 2),
-        "english_level": round(english_score, 2)
+        "english_level": round(english_score, 2),
     }
 
     total_score = sum(breakdown.values())
@@ -145,7 +160,9 @@ def score_list_match(candidate_values, required_values, max_score):
     return score, matched, missing
 
 
-def score_project_experience(candidate_project_experience, required, preferred, max_score):
+def score_project_experience(
+    candidate_project_experience, required, preferred, max_score
+):
     if candidate_project_experience is True:
         return max_score
     if required:
@@ -156,7 +173,12 @@ def score_project_experience(candidate_project_experience, required, preferred, 
 
 
 def score_salary(candidate_salary, salary_limit, max_score):
-    if salary_limit is None or salary_limit <= 0 or candidate_salary is None or candidate_salary <= salary_limit:
+    if (
+        salary_limit is None
+        or salary_limit <= 0
+        or candidate_salary is None
+        or candidate_salary <= salary_limit
+    ):
         return max_score
 
     max_salary = salary_limit * 1.5
@@ -217,8 +239,9 @@ def apply_score_caps(score, candidate, role_config, scoring):
         if candidate_experience is None or candidate_experience < required_experience:
             score = min(score, caps.get("below_min_experience"))
 
-    hard_ratio = get_match_ratio(candidate.get("hard_skills", []),
-                                 requirements.get("hard_skills"))
+    hard_ratio = get_match_ratio(
+        candidate.get("hard_skills", []), requirements.get("hard_skills")
+    )
     critical_ratio = caps.get("no_profile_hard_skills_max_ratio")
 
     if hard_ratio <= critical_ratio:
@@ -230,9 +253,11 @@ def apply_score_caps(score, candidate, role_config, scoring):
         if candidate.get("project_experience") is not True:
             score = min(score, caps.get("missing_required_project_experience"))
 
-    if is_level_lower(candidate.get("education_level"),
-                      requirements.get("min_education_level"),
-                      scoring.get("education_levels_order")):
+    if is_level_lower(
+        candidate.get("education_level"),
+        requirements.get("min_education_level"),
+        scoring.get("education_levels_order"),
+    ):
         score = min(score, caps.get("insufficient_education"))
 
     candidate_salary = candidate.get("salary_expectation")
@@ -258,13 +283,13 @@ def get_missing_requirements(candidate, role_config, scoring, best_score):
         if candidate_experience is None or candidate_experience < required_experience:
             missing.append(messages["insufficient_experience"])
 
-    hard_ratio = get_match_ratio(candidate.get("hard_skills", []),
-                                 requirements["hard_skills"])
+    hard_ratio = get_match_ratio(
+        candidate.get("hard_skills", []), requirements["hard_skills"]
+    )
     if hard_ratio < 0.5:
         missing.append(messages["insufficient_hard_skills"])
 
-    tools_ratio = get_match_ratio(candidate.get("tools", []),
-                                  requirements["tools"])
+    tools_ratio = get_match_ratio(candidate.get("tools", []), requirements["tools"])
     if tools_ratio < 0.5:
         missing.append(messages["insufficient_tools"])
 
@@ -272,9 +297,11 @@ def get_missing_requirements(candidate, role_config, scoring, best_score):
         if candidate.get("project_experience") is not True:
             missing.append(messages["no_project_experience"])
 
-    if is_level_lower(candidate.get("education_level"),
-                      requirements.get("min_education_level"),
-                      scoring.get("education_levels_order")):
+    if is_level_lower(
+        candidate.get("education_level"),
+        requirements.get("min_education_level"),
+        scoring.get("education_levels_order"),
+    ):
         missing.append(messages["insufficient_education"])
 
     salary = candidate.get("salary_expectation")
@@ -282,9 +309,12 @@ def get_missing_requirements(candidate, role_config, scoring, best_score):
     if salary is not None and salary_limit is not None and salary > salary_limit:
         missing.append(messages["salary_above_limit"])
 
-    english_score = score_ordered_level(candidate.get("english_level", None),
-                                        requirements.get("min_english_level"),
-                                        scoring.get("english_levels_order"), 1)
+    english_score = score_ordered_level(
+        candidate.get("english_level", None),
+        requirements.get("min_english_level"),
+        scoring.get("english_levels_order"),
+        1,
+    )
     if english_score < 1:
         missing.append(messages["insufficient_english"])
 
@@ -405,7 +435,9 @@ def score_skill_evidence(answer, skill_name):
     skill_matches = matched[skill_name]
     concreteness_score = score_concreteness(answer)
     score = calculate_skill_evidence_score(skill_matches, concreteness_score)
-    justification = build_skill_evidence_justification(score, skill_matches, concreteness_score)
+    justification = build_skill_evidence_justification(
+        score, skill_matches, concreteness_score
+    )
 
     return {
         "skill": skill_name,
@@ -459,19 +491,24 @@ def build_skill_evidence_justification(score, skill_matches, concreteness_score)
     return f"{prefix}: не хватает {missing_text}."
 
 
-
-    
 if __name__ == "__main__":
-    #пример можно попробовать разные значения в example_slots для проверки разных кейсов
+    # пример можно попробовать разные значения в example_slots для проверки разных кейсов
     example_slots = {
-    "target_role": "project_manager",
-    "experience_years": 3,
-    "hard_skills": ["Python", "машинное обучение", "статистика", "анализ данных", "построение моделей"],
-    "tools": ["Python", "pandas", "numpy", "sklearn", "matplotlib", "Jupyter"],
-    "project_experience": True,
-    "salary_expectation": 200000,
-    "education_level": "высшее",
-    "english_level": "C2"}
+        "target_role": "data_scientist",
+        "experience_years": 3,
+        "hard_skills": [
+            "Python",
+            "машинное обучение",
+            "статистика",
+            "анализ данных",
+            "построение моделей",
+        ],
+        "tools": ["Python", "pandas", "numpy", "sklearn", "matplotlib", "Jupyter"],
+        "project_experience": True,
+        "salary_expectation": 200000,
+        "education_level": "высшее",
+        "english_level": "C2",
+    }
 
     result = calculate_result(example_slots)
     print(yaml.safe_dump(result, allow_unicode=True, sort_keys=False))
