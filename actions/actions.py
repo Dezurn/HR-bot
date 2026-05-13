@@ -92,8 +92,8 @@ class ActionCalculateScreeningResult(Action):
             "phone": tracker.get_slot("phone"),
             "target_role": tracker.get_slot("target_role"),
             "experience_years": tracker.get_slot("experience_years"),
-            "hard_skills": tracker.get_slot("hard_skills"),
-            "tools": tracker.get_slot("tools"),
+            "hard_skills": split_slot_list(tracker.get_slot("hard_skills")),
+            "tools": split_slot_list(tracker.get_slot("tools")),
             "project_experience": tracker.get_slot("project_experience"),
             "salary_expectation": tracker.get_slot("salary_expectation"),
             "education_level": tracker.get_slot("education_level"),
@@ -144,6 +144,21 @@ def choose_supported_skill(hard_skills):
             return normalized_skill
 
     return None
+
+
+def split_slot_list(value):
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+
+    result = []
+    for item in str(value).replace(";", ",").split(","):
+        item = item.strip()
+        if item:
+            result.append(item)
+
+    return result
 
 
 def normalize_skill_name(skill):
