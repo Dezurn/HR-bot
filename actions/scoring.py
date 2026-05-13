@@ -5,13 +5,20 @@ import re
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_REQUIREMENTS_PATH = PROJECT_ROOT / "data/knowledge_base/roles_requirements.yml"
+DEFAULT_BLACKLIST_PATH = PROJECT_ROOT / "data/knowledge_base/blacklist.yml"
 
 
-def calculate_result(slots, requirements_path=DEFAULT_REQUIREMENTS_PATH):
+def calculate_result(
+    slots,
+    requirements_path=DEFAULT_REQUIREMENTS_PATH,
+    blacklist_path=DEFAULT_BLACKLIST_PATH,
+):
     knowledge_base = load_requirements(requirements_path)
+    blacklist = load_blacklist(blacklist_path)
     candidate = dict(slots)
     roles = knowledge_base["roles"]
     scoring = knowledge_base["scoring"]
+    blacklist_result = check_blacklist(candidate, blacklist)
 
     role_scores = {}
     for role_key, role_config in roles.items():
@@ -35,16 +42,29 @@ def calculate_result(slots, requirements_path=DEFAULT_REQUIREMENTS_PATH):
 
     missing_role_key = target_role_key or best_role_key
 
+    missing_requirements = get_missing_requirements(
+        candidate, roles[missing_role_key], scoring, best_score
+    )
+    decision = get_decision_label(best_score)
+
+    if blacklist_result["is_blacklisted"]:
+        decision = "не подходит"
+        missing_requirements.clear()
+        missing_requirements.insert(
+            0, "Кандидат не прошёл проверку по внутренним правилам компании"
+        )
+
     return {
         "target_role": candidate.get("target_role"),
         "target_role_key": target_role_key,
         "recommended_role": recommended_role,
         "recommended_role_key": recommended_role_key,
         "screening_score": best_score,
-        "decision": get_decision_label(best_score),
-        "missing_requirements": get_missing_requirements(
-            candidate, roles[missing_role_key], scoring, best_score
-        ),
+        "decision": decision,
+        "is_blacklisted": blacklist_result["is_blacklisted"],
+        "has_blacklist_match": blacklist_result["has_blacklist_match"],
+        "blacklist_match": blacklist_result,
+        "missing_requirements": missing_requirements,
         "role_scores": role_scores,
     }
 
@@ -53,6 +73,48 @@ def load_requirements(requirements_path=None):
     path = Path(requirements_path)
     with path.open("r", encoding="utf-8") as file:
         return yaml.safe_load(file)
+
+
+def load_blacklist(blacklist_path=DEFAULT_BLACKLIST_PATH):
+    path = Path(blacklist_path)
+    with path.open("r", encoding="utf-8") as file:
+        data = yaml.safe_load(file)
+    return data.get("blacklist")
+
+
+def check_blacklist(candidate, blacklist):
+    for item in blacklist:
+        matched_fields = []
+
+        for field in ["full_name", "email", "phone"]:
+            if candidate.get(field) and candidate.get(field) == item.get(field):
+                matched_fields.append(field)
+
+        if matched_fields:
+            return build_blacklist_result(matched_fields, item)
+
+    return build_blacklist_result([], None)
+
+
+def build_blacklist_result(matched_fields, item):
+    if not matched_fields:
+        return {
+            "is_blacklisted": False,
+            "has_blacklist_match": False,
+            "matched_fields": [],
+            "matches_count": 0,
+            "reason": None,
+        }
+
+    is_blacklisted = len(matched_fields) == 3
+
+    return {
+        "is_blacklisted": is_blacklisted,
+        "has_blacklist_match": True,
+        "matched_fields": matched_fields,
+        "matches_count": len(matched_fields),
+        "reason": item.get("reason"),
+    }
 
 
 def score_candidate_for_role(candidate, role_key, role_config, scoring):
@@ -508,6 +570,9 @@ if __name__ == "__main__":
         "salary_expectation": 200000,
         "education_level": "высшее",
         "english_level": "C2",
+        "full_name": "Иванов Иван Иванович",
+        "email": "ivanov@example.com",
+        "phone": "+79990000001",
     }
 
     result = calculate_result(example_slots)

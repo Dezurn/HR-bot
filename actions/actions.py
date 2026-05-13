@@ -87,6 +87,9 @@ class ActionCalculateScreeningResult(Action):
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
         slots = {
+            "full_name": tracker.get_slot("full_name"),
+            "email": tracker.get_slot("email"),
+            "phone": tracker.get_slot("phone"),
             "target_role": tracker.get_slot("target_role"),
             "experience_years": tracker.get_slot("experience_years"),
             "hard_skills": tracker.get_slot("hard_skills"),
@@ -95,8 +98,6 @@ class ActionCalculateScreeningResult(Action):
             "salary_expectation": tracker.get_slot("salary_expectation"),
             "education_level": tracker.get_slot("education_level"),
             "english_level": tracker.get_slot("english_level"),
-            "availability": tracker.get_slot("availability"),
-            "work_format": tracker.get_slot("work_format"),
         }
 
         result = calculate_result(slots)
@@ -117,11 +118,19 @@ class ActionCalculateScreeningResult(Action):
                 f"{result['recommended_role']}."
             )
 
+        blacklist_text = ""
+        if result.get("is_blacklisted"):
+            blacklist_text = (
+                "\n\nПричина отклонения: "
+                "кандидат не прошёл проверку по внутренним правилам компании."
+            )
+
         dispatcher.utter_message(
             text=(
                 f"Решение по роли {target_role}: {result['decision']}.\n\n"
                 f"Что не хватает:\n{missing_text}"
                 f"{recommendation_text}"
+                f"{blacklist_text}"
             )
         )
 
