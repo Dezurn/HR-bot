@@ -6,11 +6,12 @@ from rasa_sdk.events import SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 import yaml
 
-from actions.scoring import SKILL_TERMS, score_skill_evidence
-
+from actions.scoring import SKILL_TERMS, calculate_result, score_skill_evidence
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-EXTERNAL_COMPETENCIES_PATH = PROJECT_ROOT / "data/knowledge_base/external_role_competencies.yml"
+EXTERNAL_COMPETENCIES_PATH = (
+    PROJECT_ROOT / "data/knowledge_base/external_role_competencies.yml"
+)
 
 
 class ActionChooseFollowupSkill(Action):
@@ -69,6 +70,58 @@ class ActionScoreSkillEvidence(Action):
             text=(
                 f"Оценка подтверждения навыка {current_skill}: {result['score']} баллов.\n"
                 f"{result['justification']}"
+            )
+        )
+
+        return []
+
+
+class ActionCalculateScreeningResult(Action):
+    def name(self) -> Text:
+        return "action_calculate_screening_result"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        slots = {
+            "target_role": tracker.get_slot("target_role"),
+            "experience_years": tracker.get_slot("experience_years"),
+            "hard_skills": tracker.get_slot("hard_skills"),
+            "tools": tracker.get_slot("tools"),
+            "project_experience": tracker.get_slot("project_experience"),
+            "salary_expectation": tracker.get_slot("salary_expectation"),
+            "education_level": tracker.get_slot("education_level"),
+            "english_level": tracker.get_slot("english_level"),
+            "availability": tracker.get_slot("availability"),
+            "work_format": tracker.get_slot("work_format"),
+        }
+
+        result = calculate_result(slots)
+        missing_requirements = result.get("missing_requirements") or []
+
+        if missing_requirements:
+            missing_text = "\n".join(f"- {item}" for item in missing_requirements)
+        else:
+            missing_text = "нет"
+
+        target_role = result.get("target_role")
+        recommendation_text = ""
+        if result.get("recommended_role_key") and result.get(
+            "recommended_role_key"
+        ) != result.get("target_role_key"):
+            recommendation_text = (
+                f"\n\nПо ответам вы также можете лучше подойти на роль "
+                f"{result['recommended_role']}."
+            )
+
+        dispatcher.utter_message(
+            text=(
+                f"Решение по роли {target_role}: {result['decision']}.\n\n"
+                f"Что не хватает:\n{missing_text}"
+                f"{recommendation_text}"
             )
         )
 
