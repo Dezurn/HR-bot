@@ -3,104 +3,196 @@ version: "3.1"
 intents:
   - greet
   - goodbye
+  - start_screening
+  - inform
   - affirm
   - deny
-  - mood_great
-  - mood_unhappy
+  - stop
   - bot_challenge
-  - provide_profile_info
-  - provide_skill_evidence
 
 entities:
-  - experience_years
-  - skill
+  - role
+  - number
+  - education_level
+  - english_level
+  - work_format
 
 slots:
   target_role:
     type: text
+    influence_conversation: false
     mappings:
+      - type: from_entity
+        entity: role
       - type: from_text
         conditions:
-          - active_loop: candidate_profile_form
+          - active_loop: candidate_form
             requested_slot: target_role
 
   experience_years:
     type: float
+    influence_conversation: false
     mappings:
       - type: from_entity
-        entity: experience_years
+        entity: number
+      - type: from_text
         conditions:
-          - active_loop: candidate_profile_form
+          - active_loop: candidate_form
             requested_slot: experience_years
 
   hard_skills:
-    type: list
-    mappings:
-      - type: from_entity
-        entity: skill
-        conditions:
-          - active_loop: candidate_profile_form
-            requested_slot: hard_skills
-
-  current_skill:
     type: text
-    mappings:
-      - type: custom
-
-  skill_evidence_answer:
-    type: text
+    influence_conversation: false
     mappings:
       - type: from_text
         conditions:
-          - active_loop: skill_evidence_form
-            requested_slot: skill_evidence_answer
+          - active_loop: candidate_form
+            requested_slot: hard_skills
+
+  tools:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: tools
+
+  project_experience:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: from_intent
+        intent: affirm
+        value: true
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: project_experience
+      - type: from_intent
+        intent: deny
+        value: false
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: project_experience
+      - type: from_text
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: project_experience
+
+  salary_expectation:
+    type: float
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: number
+      - type: from_text
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: salary_expectation
+
+  education_level:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: education_level
+      - type: from_text
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: education_level
+
+  english_level:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: english_level
+      - type: from_text
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: english_level
+
+  availability:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: availability
+
+  work_format:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: work_format
+      - type: from_text
+        conditions:
+          - active_loop: candidate_form
+            requested_slot: work_format
 
 forms:
-  candidate_profile_form:
+  candidate_form:
     required_slots:
       - target_role
       - experience_years
       - hard_skills
-
-  skill_evidence_form:
-    required_slots:
-      - skill_evidence_answer
+      - tools
+      - project_experience
+      - salary_expectation
+      - education_level
+      - english_level
+      - availability
+      - work_format
 
 responses:
   utter_greet:
-  - text: "Здравствуйте! Я помогу провести короткое первичное интервью."
-
-  utter_ask_target_role:
-  - text: "На какую роль вы откликаетесь?"
-
-  utter_ask_experience_years:
-  - text: "Сколько лет коммерческого или проектного опыта у вас есть?"
-
-  utter_ask_hard_skills:
-  - text: "Какие ключевые hard skills вы хотите указать?"
-
-  utter_ask_skill_evidence_answer:
-  - text: "Расскажите, как вы использовали этот навык в реальном проекте."
-
-  utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"
-
-  utter_did_that_help:
-  - text: "Did that help you?"
-
-  utter_happy:
-  - text: "Great, carry on!"
+    - text: "Привет! На связи AI-рекрутер в команду ML-проекта. Я задам несколько вопросов о вашем опыте, навыках и ожиданиях. Это займёт 5-10 минуты."
 
   utter_goodbye:
-  - text: "Bye"
+    - text: "Спасибо за интервью! Ожидайте обратной связи от рекрутера."
+
+  utter_stop:
+    - text: "Хорошо, остановим интервью. Вы сможете пройти скрининг позже."
 
   utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+    - text: "Я HR-бот, который помогает провести первичное интервью кандидата."
+
+  utter_ask_target_role:
+    - text: "На какую роль вы претендуете? Доступные вакансии: Project Manager, Data Analyst, Data Engineer, Data Scientist, MLOps Engineer."
+
+  utter_ask_experience_years:
+    - text: "Сколько лет опыта у вас есть в этой области? Можно указать число, например: 0, 0.5, 1, 2, 3."
+  utter_ask_hard_skills:
+    - text: "Перечислите ваши основные hard skills через запятую. Например: Python, SQL, машинное обучение, статистика."
+
+  utter_ask_tools:
+    - text: "С какими инструментами и технологиями вы работали? Например: Python, SQL, Docker, Jira, pandas, Power BI."
+
+  utter_ask_project_experience:
+    - text: "Есть ли у вас опыт участия в учебных или рабочих проектах? Ответьте: да или нет."
+
+  utter_ask_salary_expectation:
+    - text: "Какой у вас желаемый уровень заработной платы в рублях? Например: 150000."
+
+  utter_ask_education_level:
+    - text: "Какой у вас уровень образования? Например: среднее, неоконченное высшее, высшее."
+
+  utter_ask_english_level:
+    - text: "Какой у вас уровень английского? Например: A1, A2, B1, B2, C1."
+
+  utter_ask_availability:
+    - text: "Когда вы готовы выйти на работу? Например: сразу, через 2 недели, через месяц."
+
+  utter_ask_work_format:
+    - text: "Какой формат работы предпочитаете? Например: офис, удалёнка или гибрид."
+
+  utter_submit_candidate_data:
+    - text: "Спасибо! Я собрал всю необходимую информацию. Передаю данные на следующий этап."
 
 actions:
-  - action_choose_followup_skill
-  - action_score_skill_evidence
+  - action_submit_candidate_data
 
 session_config:
   session_expiration_time: 60
