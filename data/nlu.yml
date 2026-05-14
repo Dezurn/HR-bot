@@ -44,16 +44,17 @@ nlu:
 
 - intent: inform
   examples: |
-    - Я откликаюсь на [Data Scientist]({"entity": "role", "value": "data_scientist"})
-    - Хочу на позицию [Data Engineer]({"entity": "role", "value": "data_engineer"})
-    - Рассматриваю роль [Data Analyst]({"entity": "role", "value": "data_analyst"})
-    - Подаюсь на [Project Manager]({"entity": "role", "value": "project_manager"})
-    - Интересует вакансия [MLOps Engineer]({"entity": "role", "value": "mlops_engineer"})
-    - Целевая роль [дата сайентист]({"entity": "role", "value": "data_scientist"})
-    - Хочу работать как [инженер данных]({"entity": "role", "value": "data_engineer"})
-    - Позиция [аналитик данных]({"entity": "role", "value": "data_analyst"})
-    - Я [проектный менеджер]({"entity": "role", "value": "project_manager"})
-    - Нацелен на [mlops]({"entity": "role", "value": "mlops_engineer"})
+    - Я откликаюсь на [Data Scientist]{"entity": "role", "value": "data_scientist"}
+    - Хочу на позицию [Data Engineer]{"entity": "role", "value": "data_engineer"}
+    - Рассматриваю роль [Data Analyst]{"entity": "role", "value": "data_analyst"}
+    - Подаюсь на [Project Manager]{"entity": "role", "value": "project_manager"}
+    - Интересует вакансия [MLOps Engineer]{"entity": "role", "value": "mlops_engineer"}
+    - Целевая роль [дата сайентист]{"entity": "role", "value": "data_scientist"}
+    - Хочу работать как [инженер данных]{"entity": "role", "value": "data_engineer"}
+    - Позиция [аналитик данных]{"entity": "role", "value": "data_analyst"}
+    - Я [проектный менеджер]{"entity": "role", "value": "project_manager"}
+    - Я [проджект менеджер]{"entity": "role", "value": "project_manager"}
+    - Нацелен на [mlops]{"entity": "role", "value": "mlops_engineer"}
     - У меня [0](number) лет опыта
     - У меня [1](number) год опыта
     - Опыт [2](number) года
@@ -74,8 +75,8 @@ nlu:
     - Образование [среднее специальное](education_level)
     - Уровень образования [неоконченное высшее](education_level)
     - У меня [высшее](education_level)
-    - Закончил [бакалавриат]({"entity": "education_level", "value": "высшее"})
-    - Закончил [магистратуру]({"entity": "education_level", "value": "высшее"})
+    - Закончил [бакалавриат]{"entity": "education_level", "value": "высшее"}
+    - Закончил [магистратуру]{"entity": "education_level", "value": "высшее"}
     - Английский [A0](english_level)
     - Уровень английского [A1](english_level)
     - Мой английский [A2](english_level)
@@ -84,11 +85,11 @@ nlu:
     - Уровень [C1](english_level)
     - Свободный английский [C2](english_level)
     - Предпочитаю [офис](work_format)
-    - Хочу [удаленка]({"entity": "work_format", "value": "удалёнка"})
-    - Подходит [удаленно]({"entity": "work_format", "value": "удалёнка"})
+    - Хочу [удаленка]{"entity": "work_format", "value": "удалёнка"}
+    - Подходит [удаленно]{"entity": "work_format", "value": "удалёнка"}
     - Нужен [гибрид](work_format)
-    - Для меня оптимально [гибридный]({"entity": "work_format", "value": "гибрид"}) формат
-    - Могу выходить в [офисный]({"entity": "work_format", "value": "офис"}) формат
+    - Для меня оптимально [гибридный]{"entity": "work_format", "value": "гибрид"} формат
+    - Могу выходить в [офисный]{"entity": "work_format", "value": "офис"} формат
     - Мои hard skills: Python, SQL, статистика, машинное обучение
     - Основные навыки: ETL, базы данных, пайплайны данных
     - По hard skills: управление проектами, коммуникация, планирование
@@ -102,9 +103,9 @@ nlu:
     - Готов выйти сразу
     - Смогу начать через [2](number) недели
     - Готов приступить через [1](number) месяц
-    - Позиция [Data Scientist]({"entity": "role", "value": "data_scientist"}), опыт [2](number) года, английский [B2](english_level)
-    - Роль [Data Engineer]({"entity": "role", "value": "data_engineer"}), зарплата [220000](number), формат [гибрид](work_format)
-    - Хочу на [Data Analyst]({"entity": "role", "value": "data_analyst"}), опыт [1](number) год, образование [высшее](education_level)
+    - Позиция [Data Scientist]{"entity": "role", "value": "data_scientist"}, опыт [2](number) года, английский [B2](english_level)
+    - Роль [Data Engineer]{"entity": "role", "value": "data_engineer"}, зарплата [220000](number), формат [гибрид](work_format)
+    - Хочу на [Data Analyst]{"entity": "role", "value": "data_analyst"}, опыт [1](number) год, образование [высшее](education_level)
 
 - intent: affirm
   examples: |

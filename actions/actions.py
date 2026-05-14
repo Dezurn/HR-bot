@@ -25,17 +25,11 @@ class ActionChooseFollowupSkill(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
-        hard_skills = tracker.get_slot("hard_skills") or []
-
-        if isinstance(hard_skills, str):
-            hard_skills = [hard_skills]
+        hard_skills = split_slot_list(tracker.get_slot("hard_skills"))
 
         current_skill = choose_supported_skill(hard_skills)
 
         if current_skill is None:
-            dispatcher.utter_message(
-                text="Я пока не вижу навыка, по которому могу задать уточняющий вопрос."
-            )
             return []
 
         return [
@@ -66,12 +60,7 @@ class ActionScoreSkillEvidence(Action):
 
         result = score_skill_evidence(evidence_answer, current_skill)
 
-        dispatcher.utter_message(
-            text=(
-                f"Оценка подтверждения навыка {current_skill}: {result['score']} баллов.\n"
-                f"{result['justification']}"
-            )
-        )
+        dispatcher.utter_message(text=result["justification"])
 
         return []
 
@@ -108,7 +97,7 @@ class ActionCalculateScreeningResult(Action):
         else:
             missing_text = "нет"
 
-        target_role = result.get("target_role")
+        target_role = get_display_role(result)
         recommendation_text = ""
         if result.get("recommended_role_key") and result.get(
             "recommended_role_key"
@@ -128,7 +117,7 @@ class ActionCalculateScreeningResult(Action):
         dispatcher.utter_message(
             text=(
                 f"Решение по роли {target_role}: {result['decision']}.\n"
-                f"Что не хватает:\n{missing_text}"
+                f"Чего не хватает:\n{missing_text}"
                 f"{recommendation_text}"
                 f"{blacklist_text}"
             )
@@ -263,11 +252,15 @@ def normalize_role_key(role_name):
     if not role_name:
         return None
 
-    normalized = str(role_name).strip().lower()
+    normalized = str(role_name).strip().lower().replace("ё", "е")
     normalized = normalized.replace("-", " ").replace("_", " ")
 
     role_aliases = {
         "project manager": "project_manager",
+        "проджект менеджер": "project_manager",
+        "проект менеджер": "project_manager",
+        "проектный менеджер": "project_manager",
+        "менеджер проектов": "project_manager",
         "pm": "project_manager",
         "data analyst": "data_analyst",
         "аналитик данных": "data_analyst",
@@ -276,11 +269,24 @@ def normalize_role_key(role_name):
         "инженер данных": "data_engineer",
         "data scientist": "data_scientist",
         "дата сайентист": "data_scientist",
+        "дата саентист": "data_scientist",
         "mlops engineer": "mlops_engineer",
+        "ml ops engineer": "mlops_engineer",
+        "инженер mlops": "mlops_engineer",
         "mlops": "mlops_engineer",
     }
 
     return role_aliases.get(normalized, normalized.replace(" ", "_"))
+
+
+def get_display_role(result):
+    target_role_key = result.get("target_role_key")
+    role_scores = result.get("role_scores") or {}
+
+    if target_role_key in role_scores:
+        return role_scores[target_role_key].get("role_title", target_role_key)
+
+    return result.get("target_role")
 
 
 def get_role_question_hint(role_key):
