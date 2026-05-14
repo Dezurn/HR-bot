@@ -159,6 +159,21 @@ slots:
           - active_loop: candidate_form
             requested_slot: work_format
 
+  current_skill:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  skill_evidence_answer:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: skill_evidence_form
+            requested_slot: skill_evidence_answer
+
 forms:
   candidate_form:
     required_slots:
@@ -175,6 +190,10 @@ forms:
       - english_level
       - availability
       - work_format
+
+  skill_evidence_form:
+    required_slots:
+      - skill_evidence_answer
 
 responses:
   utter_greet:
@@ -204,7 +223,7 @@ responses:
   utter_ask_experience_years:
     - text: "Сколько лет опыта у вас есть в этой области? Можно указать число, например: 0, 0.5, 1, 2, 3."
   utter_ask_hard_skills:
-    - text: "Перечислите ваши основные hard skills через запятую. Например: Python, SQL, машинное обучение, статистика."
+    - text: "Перечислите ваши основные навыки через запятую. Например: Python, SQL, машинное обучение, статистика."
 
   utter_ask_tools:
     - text: "С какими инструментами и технологиями вы работали? Например: Python, SQL, Docker, Jira, pandas, Power BI."
@@ -227,11 +246,17 @@ responses:
   utter_ask_work_format:
     - text: "Какой формат работы предпочитаете? Например: офис, удалёнка или гибрид."
 
+  utter_ask_skill_evidence_answer:
+    - text: "Вы указали навык {current_skill}. Расскажите, как вы использовали его в реальном проекте."
+
   utter_submit_candidate_data:
     - text: "Спасибо! Я собрал всю необходимую информацию. Передаю данные на следующий этап."
 
 actions:
+  - validate_candidate_form
   - action_calculate_screening_result
+  - action_choose_followup_skill
+  - action_score_skill_evidence
 
 session_config:
   session_expiration_time: 60

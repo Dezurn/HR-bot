@@ -208,12 +208,15 @@ def score_list_match(candidate_values, required_values, max_score):
 
     required_values = list(required_values)
     candidate_values = list(candidate_values)
+    normalized_candidate_values = {
+        normalize_match_value(value) for value in candidate_values if value is not None
+    }
 
     matched = []
     missing = []
 
     for item in required_values:
-        if item in candidate_values:
+        if normalize_match_value(item) in normalized_candidate_values:
             matched.append(item)
         else:
             missing.append(item)
@@ -399,12 +402,47 @@ def get_match_ratio(candidate_values, required_values):
     if not required_values:
         return 1.0
 
+    normalized_candidate_values = {
+        normalize_match_value(value) for value in candidate_values if value is not None
+    }
     matched_count = 0
     for item in required_values:
-        if item in candidate_values:
+        if normalize_match_value(item) in normalized_candidate_values:
             matched_count += 1
 
     return matched_count / len(required_values)
+
+
+MATCH_ALIASES = {
+    "python": "python",
+    "питон": "python",
+    "sql": "sql",
+    "postgres": "postgresql",
+    "postgresql": "postgresql",
+    "postgre sql": "postgresql",
+    "powerbi": "power bi",
+    "power bi": "power bi",
+    "sklearn": "sklearn",
+    "scikit learn": "sklearn",
+    "scikit-learn": "sklearn",
+    "ci cd": "ci/cd",
+    "cicd": "ci/cd",
+}
+
+
+def normalize_match_value(value):
+    normalized = str(value).strip().lower().replace("ё", "е")
+    normalized = re.sub(r"\s+", " ", normalized)
+    normalized = normalized.strip(" \t\n\r.,;:!?()[]{}\"'")
+    normalized = normalized.replace("_", " ").replace("-", " ")
+    normalized = re.sub(r"\s+", " ", normalized)
+    compact = normalized.replace(" ", "")
+
+    if normalized in MATCH_ALIASES:
+        return MATCH_ALIASES[normalized]
+    if compact in MATCH_ALIASES:
+        return MATCH_ALIASES[compact]
+    return normalized
 
 
 SKILL_TERMS = {

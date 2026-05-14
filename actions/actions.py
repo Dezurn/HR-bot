@@ -1,8 +1,9 @@
 from pathlib import Path
+import re
 from typing import Any, Dict, List, Text
 
-from rasa_sdk import Action, Tracker
-from rasa_sdk.events import SlotSet
+from rasa_sdk import Action, FormValidationAction, Tracker
+from rasa_sdk.events import FollowupAction, SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 import yaml
 
@@ -37,12 +38,11 @@ class ActionChooseFollowupSkill(Action):
             )
             return []
 
-        target_role = normalize_role_key(tracker.get_slot("target_role"))
-        role_hint = get_role_question_hint(target_role)
-        message = build_followup_message(current_skill, role_hint)
-
-        dispatcher.utter_message(text=message)
-        return [SlotSet("current_skill", current_skill)]
+        return [
+            SlotSet("current_skill", current_skill),
+            SlotSet("skill_evidence_answer", None),
+            FollowupAction("skill_evidence_form"),
+        ]
 
 
 class ActionScoreSkillEvidence(Action):
@@ -90,7 +90,7 @@ class ActionCalculateScreeningResult(Action):
             "full_name": tracker.get_slot("full_name"),
             "email": tracker.get_slot("email"),
             "phone": tracker.get_slot("phone"),
-            "target_role": tracker.get_slot("target_role"),
+            "target_role": normalize_role_key(tracker.get_slot("target_role")),
             "experience_years": tracker.get_slot("experience_years"),
             "hard_skills": split_slot_list(tracker.get_slot("hard_skills")),
             "tools": split_slot_list(tracker.get_slot("tools")),
@@ -114,20 +114,20 @@ class ActionCalculateScreeningResult(Action):
             "recommended_role_key"
         ) != result.get("target_role_key"):
             recommendation_text = (
-                f"\n\nПо ответам вы также можете лучше подойти на роль "
+                f"\nПо ответам вы также можете лучше подойти на роль "
                 f"{result['recommended_role']}."
             )
 
         blacklist_text = ""
         if result.get("is_blacklisted"):
             blacklist_text = (
-                "\n\nПричина отклонения: "
+                "\nПричина отклонения: "
                 "кандидат не прошёл проверку по внутренним правилам компании."
             )
 
         dispatcher.utter_message(
             text=(
-                f"Решение по роли {target_role}: {result['decision']}.\n\n"
+                f"Решение по роли {target_role}: {result['decision']}.\n"
                 f"Что не хватает:\n{missing_text}"
                 f"{recommendation_text}"
                 f"{blacklist_text}"
@@ -135,6 +135,78 @@ class ActionCalculateScreeningResult(Action):
         )
 
         return []
+
+
+class ValidateCandidateForm(FormValidationAction):
+    def name(self) -> Text:
+        return "validate_candidate_form"
+
+    def validate_email(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> Dict[Text, Any]:
+        email = str(slot_value or "").strip().lower()
+        if re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+            return {"email": email}
+
+        dispatcher.utter_message(
+            text="Похоже, email указан некорректно. Введите адрес в формате name@example.com."
+        )
+        return {"email": None}
+
+    def validate_phone(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> Dict[Text, Any]:
+        phone = str(slot_value or "").strip()
+        normalized_phone = re.sub(r"[^\d+]", "", phone)
+        digits_count = len(re.sub(r"\D", "", normalized_phone))
+
+        if 10 <= digits_count <= 15 and normalized_phone.count("+") <= 1:
+            return {"phone": normalized_phone}
+
+        dispatcher.utter_message(
+            text="Похоже, номер телефона указан некорректно. Введите номер с кодом страны, например +79990000001."
+        )
+        return {"phone": None}
+
+    def validate_experience_years(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> Dict[Text, Any]:
+        experience = parse_positive_float(slot_value)
+        if experience is not None and experience <= 60:
+            return {"experience_years": experience}
+
+        dispatcher.utter_message(
+            text="Укажите опыт числом в годах, например 0.5, 1 или 3."
+        )
+        return {"experience_years": None}
+
+    def validate_salary_expectation(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> Dict[Text, Any]:
+        salary = parse_positive_float(slot_value)
+        if salary is not None and salary >= 0:
+            return {"salary_expectation": salary}
+
+        dispatcher.utter_message(
+            text="Укажите зарплатные ожидания числом в рублях, например 150000."
+        )
+        return {"salary_expectation": None}
 
 
 def choose_supported_skill(hard_skills):
@@ -159,6 +231,24 @@ def split_slot_list(value):
             result.append(item)
 
     return result
+
+
+def parse_positive_float(value):
+    if value is None:
+        return None
+
+    if isinstance(value, (int, float)):
+        number = float(value)
+    else:
+        text = str(value).strip().replace(",", ".")
+        match = re.search(r"\d+(?:\.\d+)?", text.replace(" ", ""))
+        if not match:
+            return None
+        number = float(match.group(0))
+
+    if number < 0:
+        return None
+    return number
 
 
 def normalize_skill_name(skill):
@@ -223,4 +313,4 @@ def build_followup_message(current_skill, role_hint=None):
     if not role_hint:
         return base_question
 
-    return f"{base_question}\n\nДополнительно по роли: {role_hint}"
+    return f"{base_question}\nДополнительно по роли: {role_hint}"

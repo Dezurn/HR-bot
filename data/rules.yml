@@ -38,6 +38,15 @@ rules:
       - action: candidate_form
       - active_loop: null
       - action: action_calculate_screening_result
+      - action: action_choose_followup_skill
+
+  - rule: Submit skill evidence form
+    condition:
+      - active_loop: skill_evidence_form
+    steps:
+      - action: skill_evidence_form
+      - active_loop: null
+      - action: action_score_skill_evidence
 
   - rule: Stop candidate form
     condition:
