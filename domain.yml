@@ -174,6 +174,24 @@ slots:
           - active_loop: skill_evidence_form
             requested_slot: skill_evidence_answer
 
+  interview_result_file:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  candidate_is_blacklisted:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  candidate_is_rejected:
+    type: bool
+    influence_conversation: false
+    mappings:
+      - type: custom
+
 forms:
   candidate_form:
     required_slots:

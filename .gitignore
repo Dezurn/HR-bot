@@ -27,6 +27,7 @@ ENV/
 models/
 results/
 logs/
+interview_results/
 *.tar.gz
 
 actions/scoring_with_norm.py

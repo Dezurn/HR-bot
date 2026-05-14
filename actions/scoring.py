@@ -41,11 +41,12 @@ def calculate_result(
         target_role_key = None
 
     missing_role_key = target_role_key or best_role_key
+    decision_score = role_scores[missing_role_key]["score"]
 
     missing_requirements = get_missing_requirements(
         candidate, roles[missing_role_key], scoring, best_score
     )
-    decision = get_decision_label(best_score)
+    decision = get_decision_label(decision_score)
 
     if blacklist_result["is_blacklisted"]:
         decision = "не подходит"
@@ -59,7 +60,8 @@ def calculate_result(
         "target_role_key": target_role_key,
         "recommended_role": recommended_role,
         "recommended_role_key": recommended_role_key,
-        "screening_score": best_score,
+        "screening_score": decision_score,
+        "best_role_score": best_score,
         "decision": decision,
         "is_blacklisted": blacklist_result["is_blacklisted"],
         "has_blacklist_match": blacklist_result["has_blacklist_match"],

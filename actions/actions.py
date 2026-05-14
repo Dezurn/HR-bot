@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+import json
 from pathlib import Path
 import re
 from typing import Any, Dict, List, Text
@@ -13,6 +15,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXTERNAL_COMPETENCIES_PATH = (
     PROJECT_ROOT / "data/knowledge_base/external_role_competencies.yml"
 )
+INTERVIEW_RESULTS_DIR = PROJECT_ROOT / "interview_results"
 
 
 class ActionChooseFollowupSkill(Action):
@@ -25,6 +28,9 @@ class ActionChooseFollowupSkill(Action):
         tracker: Tracker,
         domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        if tracker.get_slot("candidate_is_rejected"):
+            return []
+
         hard_skills = split_slot_list(tracker.get_slot("hard_skills"))
 
         current_skill = choose_supported_skill(hard_skills)
@@ -59,6 +65,9 @@ class ActionScoreSkillEvidence(Action):
             return []
 
         result = score_skill_evidence(evidence_answer, current_skill)
+        append_skill_evidence_to_interview_result(
+            tracker.get_slot("interview_result_file"), result
+        )
 
         dispatcher.utter_message(text=result["justification"])
 
@@ -87,10 +96,23 @@ class ActionCalculateScreeningResult(Action):
             "salary_expectation": tracker.get_slot("salary_expectation"),
             "education_level": tracker.get_slot("education_level"),
             "english_level": tracker.get_slot("english_level"),
+            "availability": tracker.get_slot("availability"),
+            "work_format": tracker.get_slot("work_format"),
         }
 
         result = calculate_result(slots)
-        missing_requirements = result.get("missing_requirements") or []
+        saved_path = save_interview_result(slots, result, tracker.sender_id)
+        if result.get("is_blacklisted"):
+            dispatcher.utter_message(text=build_blacklist_rejection_message(result))
+            return [
+                SlotSet("candidate_is_rejected", True),
+                SlotSet("candidate_is_blacklisted", True),
+                SlotSet("interview_result_file", str(saved_path)),
+            ]
+
+        missing_requirements, general_messages = split_screening_messages(
+            result.get("missing_requirements") or []
+        )
 
         if missing_requirements:
             missing_text = "\n".join(f"- {item}" for item in missing_requirements)
@@ -107,23 +129,24 @@ class ActionCalculateScreeningResult(Action):
                 f"{result['recommended_role']}."
             )
 
-        blacklist_text = ""
-        if result.get("is_blacklisted"):
-            blacklist_text = (
-                "\nПричина отклонения: "
-                "кандидат не прошёл проверку по внутренним правилам компании."
-            )
+        general_text = ""
+        if general_messages:
+            general_text = "\n" + "\n".join(general_messages)
 
         dispatcher.utter_message(
             text=(
                 f"Решение по роли {target_role}: {result['decision']}.\n"
                 f"Чего не хватает:\n{missing_text}"
+                f"{general_text}"
                 f"{recommendation_text}"
-                f"{blacklist_text}"
             )
         )
 
-        return []
+        return [
+            SlotSet("candidate_is_rejected", result.get("decision") == "не подходит"),
+            SlotSet("candidate_is_blacklisted", False),
+            SlotSet("interview_result_file", str(saved_path)),
+        ]
 
 
 class ValidateCandidateForm(FormValidationAction):
@@ -238,6 +261,97 @@ def parse_positive_float(value):
     if number < 0:
         return None
     return number
+
+
+def save_interview_result(slots, result, sender_id=None):
+    INTERVIEW_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    created_at = datetime.now(timezone.utc)
+    candidate_name = slots.get("full_name") or "candidate"
+    file_stem = build_interview_result_file_stem(candidate_name, created_at)
+    path = INTERVIEW_RESULTS_DIR / f"{file_stem}.json"
+
+    payload = {
+        "created_at": created_at.isoformat(),
+        "sender_id": sender_id,
+        "candidate": slots,
+        "screening_result": {
+            "target_role": result.get("target_role"),
+            "target_role_key": result.get("target_role_key"),
+            "recommended_role": result.get("recommended_role"),
+            "recommended_role_key": result.get("recommended_role_key"),
+            "screening_score": result.get("screening_score"),
+            "best_role_score": result.get("best_role_score"),
+            "decision": result.get("decision"),
+            "is_blacklisted": result.get("is_blacklisted"),
+            "has_blacklist_match": result.get("has_blacklist_match"),
+            "blacklist_match": result.get("blacklist_match"),
+            "missing_requirements": result.get("missing_requirements") or [],
+            "role_scores": result.get("role_scores") or {},
+        },
+    }
+
+    with path.open("w", encoding="utf-8") as file:
+        json.dump(payload, file, ensure_ascii=False, indent=2)
+
+    return path
+
+
+def append_skill_evidence_to_interview_result(path_value, skill_evidence_result):
+    if not path_value:
+        return None
+
+    path = Path(path_value)
+    if not path.exists():
+        return None
+
+    with path.open("r", encoding="utf-8") as file:
+        payload = json.load(file)
+
+    payload["skill_evidence_result"] = skill_evidence_result
+
+    with path.open("w", encoding="utf-8") as file:
+        json.dump(payload, file, ensure_ascii=False, indent=2)
+
+    return path
+
+
+def split_screening_messages(messages):
+    general_messages = []
+    missing_requirements = []
+
+    for message in messages:
+        if message == "Нет подходящей роли среди доступных вакансий":
+            general_messages.append(message)
+        else:
+            missing_requirements.append(message)
+
+    return missing_requirements, general_messages
+
+
+def build_blacklist_rejection_message(result):
+    blacklist_match = result.get("blacklist_match") or {}
+    reason = blacklist_match.get("reason")
+
+    if reason:
+        return f"Кандидат отклонен.\nПричина отклонения: {reason}."
+
+    return (
+        "Кандидат отклонен.\n"
+        "Причина отклонения: кандидат не прошёл проверку "
+        "по внутренним правилам компании."
+    )
+
+
+def build_interview_result_file_stem(candidate_name, created_at):
+    timestamp = created_at.strftime("%Y%m%d_%H%M%S_%f")
+    normalized_name = re.sub(r"[^a-zA-Zа-яА-Я0-9]+", "_", str(candidate_name))
+    normalized_name = normalized_name.strip("_").lower()
+
+    if not normalized_name:
+        normalized_name = "candidate"
+
+    return f"{timestamp}_{normalized_name}"
 
 
 def normalize_skill_name(skill):
